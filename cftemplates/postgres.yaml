@@ -1,5 +1,5 @@
 ---
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: 2010-09-09
 Description: PostgreSQL
 Parameters:
   InfraVPC:
@@ -29,14 +29,14 @@ Resources:
         Ref: InfraVPC
       SecurityGroupIngress:
       - CidrIp: 0.0.0.0/0
-        IpProtocol: "-1"
-        FromPort: '0'
-        ToPort: '65535'
+        IpProtocol: -1
+        FromPort: 0
+        ToPort: 65535
       SecurityGroupEgress:
       - CidrIp: 0.0.0.0/0
-        IpProtocol: "-1"
-        FromPort: '0'
-        ToPort: '65535'
+        IpProtocol: -1
+        FromPort: 0
+        ToPort: 65535
       Tags: [{"Key": "Name", "Value": {"Fn::Join": [" ",[{"Ref": "AWS::StackName"}, "resource"]]}}]
   DBSNGroup:
     Type: AWS::RDS::DBSubnetGroup
@@ -50,25 +50,21 @@ Resources:
   Postgres:
     Type: AWS::RDS::DBInstance
     Properties:
-      AllocatedStorage: '5'
-      AllowMajorVersionUpgrade: 'false'
-      AutoMinorVersionUpgrade: 'false'
-      BackupRetentionPeriod: '0'
+      AllocatedStorage: 5
+      AllowMajorVersionUpgrade: False
+      AutoMinorVersionUpgrade: False
+      BackupRetentionPeriod: 0
       DBInstanceClass: db.t2.micro
-      DBSubnetGroupName:
-        Ref: DBSNGroup
-      DBName:
-        Ref: DBName
+      DBSubnetGroupName: !Ref DBSNGroup
+      DBName: !Ref DBName
       Engine: postgres
       EngineVersion: 9.6.5
-      MasterUsername:
-        Ref: MasterUsername
-      MasterUserPassword:
-        Ref: MasterUserPassword
-      MultiAZ: 'false'
-      PubliclyAccessible: 'true'
+      MasterUsername: !Ref MasterUsername
+      MasterUserPassword: !Ref MasterUserPassword
+      MultiAZ: False
+      PubliclyAccessible: True
       VPCSecurityGroups:
-      - Ref: OpenSecurityGroup
+        - Ref: OpenSecurityGroup
       Tags: [{"Key": "Name", "Value": {"Fn::Join": [" ",[{"Ref": "AWS::StackName"}, "resource"]]}}]
 Outputs:
   DBEndpoint:
@@ -77,11 +73,8 @@ Outputs:
       - Postgres
       - Endpoint.Address
   DBName:
-    Value:
-      Ref: DBName
+    Value: !Ref DBName
   MasterUsername:
-    Value:
-      Ref: MasterUsername
+    Value: !Ref MasterUsername
   MasterUserPassword:
-    Value:
-      Ref: MasterUserPassword
+    Value: !Ref MasterUserPassword
