@@ -1,0 +1,87 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: PostgreSQL
+Parameters:
+  InfraVPC:
+    Type: String
+    Description: ID of the VPC to use
+  InfraSubnetA:
+    Type: String
+    Description: ID of a subnet to use
+  InfraSubnetB:
+    Type: String
+    Description: ID of a subnet to use
+  InfraSubnetC:
+    Type: String
+    Description: ID of a subnet to use
+  DBName:
+    Type: String
+  MasterUsername:
+    Type: String
+  MasterUserPassword:
+    Type: String
+Resources:
+  OpenSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow everything
+      VpcId:
+        Ref: InfraVPC
+      SecurityGroupIngress:
+      - CidrIp: 0.0.0.0/0
+        IpProtocol: "-1"
+        FromPort: '0'
+        ToPort: '65535'
+      SecurityGroupEgress:
+      - CidrIp: 0.0.0.0/0
+        IpProtocol: "-1"
+        FromPort: '0'
+        ToPort: '65535'
+      Tags: [{"Key": "Name", "Value": {"Fn::Join": [" ",[{"Ref": "AWS::StackName"}, "resource"]]}}]
+  DBSNGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Database Subnet Group
+      SubnetIds:
+      - Ref: InfraSubnetA
+      - Ref: InfraSubnetB
+      - Ref: InfraSubnetC
+      Tags: [{"Key": "Name", "Value": {"Fn::Join": [" ",[{"Ref": "AWS::StackName"}, "resource"]]}}]
+  Postgres:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      AllocatedStorage: '5'
+      AllowMajorVersionUpgrade: 'false'
+      AutoMinorVersionUpgrade: 'false'
+      BackupRetentionPeriod: '0'
+      DBInstanceClass: db.t2.micro
+      DBSubnetGroupName:
+        Ref: DBSNGroup
+      DBName:
+        Ref: DBName
+      Engine: postgres
+      EngineVersion: 9.6.5
+      MasterUsername:
+        Ref: MasterUsername
+      MasterUserPassword:
+        Ref: MasterUserPassword
+      MultiAZ: 'false'
+      PubliclyAccessible: 'true'
+      VPCSecurityGroups:
+      - Ref: OpenSecurityGroup
+      Tags: [{"Key": "Name", "Value": {"Fn::Join": [" ",[{"Ref": "AWS::StackName"}, "resource"]]}}]
+Outputs:
+  DBEndpoint:
+    Value:
+      Fn::GetAtt:
+      - Postgres
+      - Endpoint.Address
+  DBName:
+    Value:
+      Ref: DBName
+  MasterUsername:
+    Value:
+      Ref: MasterUsername
+  MasterUserPassword:
+    Value:
+      Ref: MasterUserPassword
