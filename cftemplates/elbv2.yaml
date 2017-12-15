@@ -1,0 +1,28 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Elastic Load Balancer V2
+Parameters:
+  Subnets:
+    Type: List
+    Description: IDs of subnets to balance between
+  NetworkIngress:
+    Type: String
+    Description: CIDR
+Resources:
+  SecGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      SecurityGroupEgress:
+        - Security Group Rule
+      SecurityGroupIngress:
+        - Security Group Rule
+      Tags:
+        - Resource Tag
+      VpcId: String
+
+  LoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Tags: [{"Key": "Name", "Value": {"Fn::Join": [" ",[{"Ref": "AWS::StackName"}, "resource"]]}}]
+      Subnets: !Ref Subnets
+      SecurityGroups
