@@ -2,8 +2,11 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: Elastic Load Balancer
 Parameters:
+  VpcId:
+    Type: String
+    Description: ID of the VPC to use
   Subnets:
-    Type: List
+    Type: CommaDelimitedList
     Description: IDs of subnets to balance between
   NetworkIngress:
     Type: String
@@ -19,7 +22,7 @@ Resources:
       VpcId:
         Ref: InfraVPC
       SecurityGroupIngress:
-      - CidrIp: !Ref Ingress
+      - CidrIp: !Ref NetworkIngress
         IpProtocol: -1
         FromPort: 0
         ToPort: 65535
@@ -29,8 +32,7 @@ Resources:
         FromPort: 0
         ToPort: 65535
       Tags: [{"Key": "Name", "Value": {"Fn::Join": [" ",[{"Ref": "AWS::StackName"}, "resource"]]}}]
-      VpcId: !GetAtt {!Select [0, !Ref Subnets]}.VpcId
-
+      VpcId: !Ref VpcId
   LoadBalancer:
     Type: AWS::ElasticLoadBalancing::LoadBalancer
     Properties:
@@ -41,9 +43,9 @@ Resources:
       SecurityGroups:
       - !Ref SecGroup
       HealthCheck:
-        HealthyThreshold: 1
+        HealthyThreshold: 2
         Interval: 5
-        Target: HTTP:8080
+        Target: HTTP:8080/
         Timeout: 4
         UnhealthyThreshold: 2
       Listeners:
@@ -55,4 +57,4 @@ Resources:
         InstancePort: 8443
         Protocol: HTTPS
         InstanceProtocol: HTTP
-        SslCertificateId: !Ref CertificateARN
+        SSLCertificateId: !Ref CertificateARN
