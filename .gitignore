@@ -1,3 +1,4 @@
 *.iml
+*.pem
 .idea
 awsenv.conf

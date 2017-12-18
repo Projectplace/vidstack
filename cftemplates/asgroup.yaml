@@ -1,3 +1,35 @@
 ---
 AWSTemplateFormatVersion: 2010-09-09
 Description: Auto Scaling Group
+Parameters:
+  LaunchConfig:
+    Type: String
+    Descrition: Reference to an exesting launch configuration
+  ELB:
+    Type: String
+    Descrition: Reference to an exesting classic elastic load balancer
+  Subnets:
+    Type: CommaDelimitedList
+    Description: IDs of subnets to balance between
+Resources:
+  ASGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      Cooldown: 10
+      DesiredCapacity: 2
+      HealthCheckGracePeriod: 10
+      HealthCheckType: ELB
+      LaunchConfigurationName: !Ref LaunchConfig
+      LoadBalancerNames: [!Ref ELB]
+      MaxSize: 2
+      MinSize: 2
+      Tags: [{"Key": "Name", "Value": {"Fn::Join": [" ",[{"Ref": "AWS::StackName"}, "resource"]]}}]
+      VPCZoneIdentifier: !Ref Subnets
+  LaunchConfig:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      ImageId: ami-1a962263
+      InstanceType: t2.micro
+      KeyName: johan_nordenswan
+      
+
