@@ -28,5 +28,20 @@ Resources:
       ImageId: ami-1a962263
       InstanceType: t2.micro
       KeyName: johan_nordenswan
-
-
+    Metadata:
+      AWS::CloudFormation::Init:
+        config:
+          packages:
+            :
+          groups:
+            :
+          users:
+            :
+          sources:
+            :
+          files:
+            :
+          commands:
+            :
+          services:
+            :
