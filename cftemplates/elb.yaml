@@ -15,13 +15,21 @@ Resources:
   SecGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      SecurityGroupEgress:
-        - Security Group Rule
+      GroupDescription: Allow everything
+      VpcId:
+        Ref: InfraVPC
       SecurityGroupIngress:
-        - Security Group Rule
-      Tags:
-        - Resource Tag
-      VpcId: String
+      - CidrIp: !Ref Ingress
+        IpProtocol: -1
+        FromPort: 0
+        ToPort: 65535
+      SecurityGroupEgress:
+      - CidrIp: 0.0.0.0/0
+        IpProtocol: -1
+        FromPort: 0
+        ToPort: 65535
+      Tags: [{"Key": "Name", "Value": {"Fn::Join": [" ",[{"Ref": "AWS::StackName"}, "resource"]]}}]
+      VpcId: !GetAtt {!Select [0, !Ref Subnets]}.VpcId
 
   LoadBalancer:
     Type: AWS::ElasticLoadBalancing::LoadBalancer
@@ -29,6 +37,9 @@ Resources:
       Tags: [{"Key": "Name", "Value": {"Fn::Join": [" ",[{"Ref": "AWS::StackName"}, "resource"]]}}]
       Subnets: !Ref Subnets
       CrossZone: True
+      Scheme: internet-facing
+      SecurityGroups:
+      - !Ref SecGroup
       HealthCheck:
         HealthyThreshold: 1
         Interval: 5
