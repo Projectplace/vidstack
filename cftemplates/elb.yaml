@@ -1,0 +1,47 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: Elastic Load Balancer
+Parameters:
+  Subnets:
+    Type: List
+    Description: IDs of subnets to balance between
+  NetworkIngress:
+    Type: String
+    Description: CIDR
+  CertificateARN:
+    Type: String
+    Description: SSL/TLS certificate to use
+Resources:
+  SecGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      SecurityGroupEgress:
+        - Security Group Rule
+      SecurityGroupIngress:
+        - Security Group Rule
+      Tags:
+        - Resource Tag
+      VpcId: String
+
+  LoadBalancer:
+    Type: AWS::ElasticLoadBalancing::LoadBalancer
+    Properties:
+      Tags: [{"Key": "Name", "Value": {"Fn::Join": [" ",[{"Ref": "AWS::StackName"}, "resource"]]}}]
+      Subnets: !Ref Subnets
+      CrossZone: True
+      HealthCheck:
+        HealthyThreshold: 1
+        Interval: 5
+        Target: HTTP:8080
+        Timeout: 4
+        UnhealthyThreshold: 2
+      Listeners:
+      - LoadBalancerPort: 80
+        InstancePort: 8080
+        Protocol: HTTP
+        InstanceProtocol: HTTP
+      - LoadBalancerPort: 443
+        InstancePort: 8443
+        Protocol: HTTPS
+        InstanceProtocol: HTTP
+        SslCertificateId: !Ref CertificateARN
