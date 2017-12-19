@@ -24,24 +24,56 @@ Resources:
       VPCZoneIdentifier: !Ref Subnets
   LaunchConfig:
     Type: AWS::AutoScaling::LaunchConfiguration
+    Metadata:
+      AWS::CloudFormation::Init:
+        config:
+          packages: {}
+          groups: {}
+          users: {}
+          sources: {}
+          files: {}
+          commands:
+            01-enable-epel:
+              command: "yum-config-manager --enable epel"
+            02-install-packages:
+              command: "yum -y install uwsgi uwsgi-plugin-python uwsgi-router-http python27-psycopg2"
+            03-run-webapp:
+              command: "nohup uwsgi --plugins http,python --http-auto-chunked --http-keepalive --add-header=\"Connection: Keep-Alive\" --master --http 0.0.0.0:8080 --module=wsgiref.simple_server:demo_app &>/dev/null &"
+          services: {}
     Properties:
       ImageId: ami-1a962263
       InstanceType: t2.micro
       KeyName: johan_nordenswan
-    Metadata:
-      AWS::CloudFormation::Init:
-        config:
-          packages:
-            :
-          groups:
-            :
-          users:
-            :
-          sources:
-            :
-          files:
-            :
-          commands:
-            :
-          services:
-            :
+      UserData:
+        Fn::Base64:
+          Fn::Join:
+          - ''
+          - - "#!/bin/bash -v\n"
+            - "# Fail and exit function\n"
+            - 'function error_exit
+            '
+            - "{\n"
+            - '  /opt/aws/bin/cfn-signal -e 1 -r "$1" '''
+            - Ref: WaitHandle
+            - "'\n"
+            - "  exit 1\n"
+            - "}\n"
+            - "/opt/aws/bin/cfn-init -v -s "
+            - Ref: AWS::StackId
+            - " -r LaunchConfig "
+            - "    --region "
+            - Ref: AWS::Region
+            - " || error_exit 'Failed to run cfn-init'\n"
+            - "# All is well so signal success\n"
+            - /opt/aws/bin/cfn-signal -e 0 -r "LaunchConfig setup complete" '
+            - Ref: WaitHandle
+            - "'\n"
+  WaitHandle:
+    Type: AWS::CloudFormation::WaitConditionHandle
+  WaitCondition:
+    Type: AWS::CloudFormation::WaitCondition
+    DependsOn: LaunchConfig
+    Properties:
+      Handle:
+        Ref: WaitHandle
+      Timeout: '300'
