@@ -38,7 +38,7 @@ Resources:
             02-install-packages:
               command: "yum -y install uwsgi uwsgi-plugin-python uwsgi-router-http python27-psycopg2"
             03-run-webapp:
-              command: "nohup uwsgi --plugins http,python --http-auto-chunked --http-keepalive --add-header=\"Connection: Keep-Alive\" --master --http 0.0.0.0:8080 --module=wsgiref.simple_server:demo_app &>/dev/null &"
+              command: "nohup uwsgi --plugins http,python --http-auto-chunked --http-keepalive --add-header=\"Connection: Keep-Alive\" --master --http 0.0.0.0:8080 --http 0.0.0.0:8443 --module=wsgiref.simple_server:demo_app &>/dev/null &"
           services: {}
     Properties:
       ImageId: ami-1a962263
