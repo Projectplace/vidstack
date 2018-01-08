@@ -12,9 +12,9 @@ Resources:
   ASGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
-      Cooldown: 10
+      Cooldown: 60
       DesiredCapacity: 2
-      HealthCheckGracePeriod: 10
+      HealthCheckGracePeriod: 60
       HealthCheckType: ELB
       LaunchConfigurationName: !Ref LaunchConfig
       LoadBalancerNames: [!Ref ELB]
